@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeatMap Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #1e293b, #0f172a); color: #f8fafc; margin: 0; padding: 0; transition: background 0.5s ease, color 0.5s ease; }
+  body.light { background: linear-gradient(135deg, #f8fafc, #e2e8f0); color: #1e293b; }
+  body.ocean { background: linear-gradient(135deg, #0a2540, #012a4a); color: #cce4f6; }
+  header { background-color: #0f172a; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+  body.light header { background-color: #e2e8f0; color: #0f172a; }
+  body.ocean header { background-color: #012a4a; }
+  header h1 { font-size: 22px; font-weight: 600; color: #38bdf8; }
+  .nav-buttons button { background-color: #1e3a8a; border: none; color: white; margin-left: 10px; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: background 0.3s ease; }
+  .nav-buttons button:hover { background-color: #2563eb; }
+  .container { padding: 40px; max-width: 1000px; margin: auto; }
+  textarea, input, select { width: 100%; padding: 10px; border: none; border-radius: 8px; margin-bottom: 12px; font-size: 16px; outline: none; }
+  textarea { height: 120px; resize: none; background-color: #1e293b; color: white; }
+  body.light textarea, body.light input, body.light select { background-color: #f1f5f9; color: #0f172a; }
+  body.ocean textarea, body.ocean input, body.ocean select { background-color: #04325c; color: #e0f2fe; }
+  .submit-btn, .back-btn { display: inline-block; background-color: #38bdf8; color: #0f172a; font-weight: 600; padding: 10px 22px; margin-top: 15px; border: none; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
+  .submit-btn:hover, .back-btn:hover { background-color: #0ea5e9; }
+  .results { margin-top: 30px; padding: 20px; background-color: #1e293b; border-radius: 10px; box-shadow: 0 2px 8px rgba(255,255,255,0.1); }
+  body.light .results { background-color: #f1f5f9; }
+  body.ocean .results { background-color: #04325c; }
+  .result-section h3 { color: #38bdf8; margin-bottom: 10px; }
+  canvas { margin-top: 25px; width: 100%; border-radius: 10px; }
+  footer { text-align: center; padding: 20px; margin-top: 40px; background-color: #0f172a; color: #94a3b8; font-size: 14px; }
+  body.light footer { background-color: #e2e8f0; color: #475569; }
+  body.ocean footer { background-color: #012a4a; color: #a3c8e2; }
+  .summary { margin-bottom: 20px; padding: 15px; background-color: rgba(255,255,255,0.05); border-radius: 8px; }
+  .hidden { display: none; }
+  #successMessage { color: #22c55e; font-weight: 600; margin-top: 15px; display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 Project HeatMap Dashboard</h1>
+  <div class="nav-buttons">
+    <button onclick="goTo('settings.html')">Settings</button>
+    <button onclick="goTo('project_ideas.html')">Project Ideas</button>
+    <button onclick="goTo('report.html')">Report</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Project Info Form -->
+  <div class="project-info" id="projectInfoForm">
+    <h2>Enter Your Project Info</h2>
+    <input type="text" id="projectTitle" placeholder="Project Title">
+    <select id="projectType" onchange="toggleTeamFields()">
+      <option value="">Select Project Type</option>
+      <option value="Individual">Individual Project</option>
+      <option value="Team">Team Project</option>
+    </select>
+    <div id="teamFields" class="hidden">
+      <input type="number" id="teamMembers" placeholder="Number of Members">
+      <input type="number" id="reworkCount" placeholder="Your Rework Count">
+    </div>
+    <button class="submit-btn" onclick="submitProjectInfo()">Submit Project Info</button>
+  </div>
+
+  <!-- Project Details Section -->
+  <div id="projectDetailsSection" class="hidden">
+    <h2>Enter Project Details</h2>
+    <textarea id="projectDetails" placeholder="Describe your project..."></textarea>
+    <button class="submit-btn" onclick="analyzeProject()">Analyze Project</button>
+    <button class="back-btn" onclick="backToInfo()">⬅ Back</button>
+  </div>
+
+  <!-- Analysis Results -->
+  <div class="results hidden" id="results">
+    <div class="summary" id="summary"></div>
+    <div class="result-section">
+      <h3>Productivity Insights</h3>
+      <p id="productivityText"></p>
+    </div>
+    <div class="result-section">
+      <h3>Waste Identification</h3>
+      <p id="wasteText"></p>
+    </div>
+    <div class="result-section">
+      <h3>Improvement Remedies</h3>
+      <p id="remediesText"></p>
+    </div>
+    <p id="successMessage">✅ Project added successfully!</p>
+    <canvas id="myChart"></canvas>
+    <canvas id="trendChart" style="margin-top:35px;"></canvas>
+    <button class="back-btn" onclick="backToDetails()">⬅ Back</button>
+  </div>
+
+  <!-- Total Projects -->
+  <div class="hidden" id="projectListPage">
+    <h2>Total Projects</h2>
+    <div id="projectList"></div>
+    <button class="back-btn" onclick="backToResults()">⬅ Back</button>
+  </div>
+</div>
+
+<footer>
+  © 2025 HeatMap Insights | Designed for Smart Waste & Productivity Tracking
+</footer>
+
+<script>
+function goTo(page){ window.location.href = page; }
+function logout(){ window.location.href = "feedback.html"; }
+
+function toggleTeamFields(){
+  const type=document.getElementById("projectType").value;
+  document.getElementById("teamFields").classList.toggle("hidden", type!=="Team");
+}
+
+function submitProjectInfo(){
+  const title=document.getElementById("projectTitle").value.trim();
+  const type=document.getElementById("projectType").value;
+  if(!title || !type){ alert("Please enter project title and select type!"); return; }
+  document.getElementById("projectInfoForm").classList.add("hidden");
+  document.getElementById("projectDetailsSection").classList.remove("hidden");
+}
+
+function backToInfo(){
+  document.getElementById("projectDetailsSection").classList.add("hidden");
+  document.getElementById("projectInfoForm").classList.remove("hidden");
+}
+
+function analyzeProject(){
+  const text=document.getElementById("projectDetails").value.trim();
+  if(!text){ alert("Please enter some project details!"); return; }
+
+  const lowerText=text.toLowerCase();
+  let category="default";
+  if(lowerText.includes("automation")||lowerText.includes("ai")) category="automation";
+  else if(lowerText.includes("manual")) category="manual";
+  else if(lowerText.includes("data")) category="data";
+  else if(lowerText.includes("prototype")) category="prototype";
+
+  const randomInsights={
+    automation:["High productivity due to automation.","AI enhances workflow.","Automation reduces time."],
+    manual:["Moderate productivity due to manual work.","Repetitive process delays results.","Manual efforts slow down speed."],
+    data:["Good productivity from data insights.","Metrics optimize workflow.","Data analysis improves planning."],
+    prototype:["Strong productivity from prototyping.","Design tests improve results.","Iterations refine quality."],
+    default:["Average productivity detected.","Try improving workflow structure.","Focus on clearer goals."]
+  };
+  const waste={automation:["Low waste due to automation.","Efficient process cuts redundancy.","Smooth flow reduces errors."],
+    manual:["High waste from manual errors.","Rework consumes time.","Paper process increases waste."],
+    data:["Data duplication issues.","Unstructured data causes confusion.","Mismanaged metrics waste time."],
+    prototype:["Time lost in redesign.","Iteration rework causes delay.","Testing consumes resources."],
+    default:["Possible inefficiency found.","Undefined process creates waste.","Unclear goals slow progress."]};
+  const remedies={automation:["Monitor automation regularly.","Train users for AI.","Add error detection modules."],
+    manual:["Automate repetitive work.","Use templates for faster flow.","Digitize manual logs."],
+    data:["Clean and validate data.","Optimize analytics pipeline.","Add real-time dashboards."],
+    prototype:["Plan testing early.","Document design changes.","Speed up iterations."],
+    default:["Plan and organize tasks.","Review workflow weekly.","Improve task clarity."]};
+
+  function pickThree(arr){ return arr.sort(()=>0.5-Math.random()).slice(0,3).join(" "); }
+
+  const productivity=pickThree(randomInsights[category]);
+  const wasteText=pickThree(waste[category]);
+  const remedy=pickThree(remedies[category]);
+
+  document.getElementById("productivityText").textContent=productivity;
+  document.getElementById("wasteText").textContent=wasteText;
+  document.getElementById("remediesText").textContent=remedy;
+
+  const chartData={productive:Math.floor(Math.random()*40)+60,waste:Math.floor(Math.random()*30)+10};
+
+  let projects=JSON.parse(localStorage.getItem("projects"))||[];
+  projects.push({details:text,productivity,waste:wasteText,remedies:remedy,chartData});
+  localStorage.setItem("projects",JSON.stringify(projects));
+
+  document.getElementById("projectDetailsSection").classList.add("hidden");
+  document.getElementById("results").classList.remove("hidden");
+  document.getElementById("successMessage").style.display="block";
+
+  renderCharts();
+}
+
+function renderCharts(){
+  const projects=JSON.parse(localStorage.getItem("projects"))||[];
+  if(projects.length===0)return;
+  const last=projects[projects.length-1];
+  const ctx=document.getElementById("myChart").getContext("2d");
+  new Chart(ctx,{type:"bar",data:{labels:["Productivity","Waste","Remedy Effectiveness"],datasets:[{label:"Project Analysis",data:[last.chartData.productive,last.chartData.waste,Math.floor(Math.random()*40)+50],backgroundColor:["#38bdf8","#ef4444","#22c55e"]}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+
+  const trendCtx=document.getElementById("trendChart").getContext("2d");
+  const labels=projects.map((p,i)=>`Project ${i+1}`);
+  const prod=projects.map(p=>p.chartData.productive);
+  const wast=projects.map(p=>p.chartData.waste);
+  new Chart(trendCtx,{type:"line",data:{labels:labels,datasets:[{label:"Productivity",data:prod,borderColor:"#38bdf8",fill:false},{label:"Waste",data:wast,borderColor:"#ef4444",fill:false}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+  document.getElementById("summary").innerHTML=`Total Projects: ${projects.length} | Avg Productivity: ${Math.round(prod.reduce((a,b)=>a+b,0)/prod.length)} | Avg Waste: ${Math.round(wast.reduce((a,b)=>a+b,0)/wast.length)}`;
+}
+
+function backToDetails(){
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("projectDetailsSection").classList.remove("hidden");
+  document.getElementById("successMessage").style.display="none";
+}
+
+function backToResults(){
+  document.getElementById("projectListPage").classList.add("hidden");
+  document.getElementById("results").classList.remove("hidden");
+}
+
+function showProjects(){
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("projectListPage").classList.remove("hidden");
+  updateProjectList();
+}
+
+function updateProjectList(){
+  const list=document.getElementById("projectList");
+  const projects=JSON.parse(localStorage.getItem("projects"))||[];
+  list.innerHTML="";
+  projects.forEach((p,i)=>{
+    const div=document.createElement("div");
+    div.className="summary";
+    div.innerHTML=`<strong>Project ${i+1}:</strong> ${p.details}<br><em>Productivity:</em> ${p.productivity}<br><em>Waste:</em> ${p.waste}<br><em>Remedies:</em> ${p.remedies}`;
+    list.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>

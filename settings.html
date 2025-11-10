@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings – Waste Heat Map</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --card: #111b2e;
+      --accent: linear-gradient(90deg, #7dd3fc, #60a5fa);
+      --muted: #9aa4b2;
+    }
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: #e6eef6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      transition: background 0.5s ease, color 0.5s ease;
+      position: relative;
+    }
+    nav {
+      background: rgba(17, 27, 46, 0.95);
+      padding: 14px 0;
+      border-radius: 14px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+      margin-bottom: 30px;
+      transition: background 0.5s ease;
+      position: relative;
+    }
+    nav a {
+      color: #7dd3fc;
+      font-weight: 600;
+      margin: 0 20px;
+      text-decoration: none;
+      font-size: 16px;
+      transition: color 0.3s, text-shadow 0.3s, transform 0.2s;
+    }
+    nav a:hover {
+      color: #fff;
+      text-shadow: 0 0 8px #60a5fa;
+      transform: scale(1.05);
+    }
+
+    /* Profile icon at top-right */
+    #profileIcon {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #7dd3fc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f1724;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: background 0.5s ease;
+      margin-bottom: 30px;
+    }
+    h2 {
+      text-align: center;
+      color: #7dd3fc;
+    }
+    label {
+      display: block;
+      margin-top: 14px;
+      color: var(--muted);
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #04263b;
+      font-weight: 600;
+      font-size: 15px;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+    }
+
+    /* Profile popup */
+    #profilePopup {
+      display:none;
+      position: fixed;
+      top:50px;
+      right:20px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.6);
+      max-width: 250px;
+      color: var(--muted);
+      z-index: 1000;
+    }
+    #profilePopup p { margin: 6px 0; }
+    #profilePopup button {
+      margin-top:10px;
+      padding:6px 10px;
+      background:#38bdf8;
+      color:#0f172a;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    /* Help Popup Styles */
+    #helpPopup {
+      display:none;
+      position: fixed;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.6);
+      max-width: 400px;
+      text-align:left;
+      color: var(--muted);
+      z-index: 1000;
+    }
+    #helpPopup h3 { color:#7dd3fc; margin-top:0; }
+    #helpPopup button { 
+      margin-top:10px;
+      padding:8px 12px;
+      border:none;
+      border-radius:8px;
+      background:#38bdf8;
+      color:#0f172a;
+      cursor:pointer;
+      font-weight:600;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="heatmap.html">🏠 Dashboard</a>
+    <a href="report.html">📊 Report</a>
+    <a href="settings.html">⚙️ Settings</a>
+    <a href="index.html" style="color:#f87171;">🚪 Logout</a>
+    <div id="profileIcon">👤</div>
+  </nav>
+
+  <div class="card">
+    <h2>User Settings</h2>
+    <label>Display Name</label>
+    <input type="text" id="name" placeholder="Enter your name">
+
+    <label>Email</label>
+    <input type="email" id="email" placeholder="Enter your email">
+
+    <label>Theme</label>
+    <select id="theme">
+      <option>Dark Mode (Default)</option>
+      <option>Light Mode</option>
+      <option>Ocean Blue</option>
+    </select>
+
+    <button onclick="saveSettings()">Save Changes</button>
+    <button onclick="showHelp()">❓ Help</button>
+  </div>
+
+  <!-- Help Popup -->
+  <div id="helpPopup">
+    <h3>Settings Help</h3>
+    <ul>
+      <li>Change your <strong>Display Name</strong> to personalize your profile.</li>
+      <li>Update your <strong>Email</strong> for account notifications.</li>
+      <li>Select a <strong>Theme</strong> to change the appearance of all pages.</li>
+      <li>Click <strong>Save Changes</strong> to apply settings immediately.</li>
+      <li>Check your <strong>Profile Icon</strong> on top-right to see your info.</li>
+      <li>For assistance, contact: <strong>support@wasteheatmap.com</strong> or call <strong>+91 9876543210</strong></li>
+    </ul>
+    <button onclick="closeHelp()">Close</button>
+  </div>
+
+  <!-- Profile Popup -->
+  <div id="profilePopup">
+    <p><strong>Name:</strong> <span id="profileName"></span></p>
+    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+    <p><strong>Login Date:</strong> <span id="loginDate"></span></p>
+    <p><strong>Login Time:</strong> <span id="loginTime"></span></p>
+    <button onclick="closeProfile()">Close</button>
+  </div>
+
+  <script>
+    // Apply Theme
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === "Light Mode") {
+        root.style.setProperty("--bg", "#f8fafc");
+        root.style.setProperty("--card", "#ffffff");
+        root.style.setProperty("--muted", "#334155");
+        document.body.style.color = "#0f172a";
+      } else if (theme === "Ocean Blue") {
+        root.style.setProperty("--bg", "#0e2a47");
+        root.style.setProperty("--card", "#10365a");
+        root.style.setProperty("--muted", "#bcd2e8");
+        document.body.style.color = "#e6f1fa";
+      } else {
+        root.style.setProperty("--bg", "#0f1724");
+        root.style.setProperty("--card", "#111b2e");
+        root.style.setProperty("--muted", "#9aa4b2");
+        document.body.style.color = "#e6eef6";
+      }
+    }
+
+    // Load saved theme & user info
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme") || "Dark Mode (Default)";
+      const username = localStorage.getItem("username") || "Guest";
+      const email = localStorage.getItem("email") || "Not set";
+
+      document.getElementById("name").value = username;
+      document.getElementById("email").value = email;
+      document.getElementById("theme").value = savedTheme;
+      applyTheme(savedTheme);
+
+      const now = new Date();
+      document.getElementById("profileName").textContent = username;
+      document.getElementById("profileEmail").textContent = email;
+      document.getElementById("loginDate").textContent = now.toLocaleDateString();
+      document.getElementById("loginTime").textContent = now.toLocaleTimeString();
+    });
+
+    // Save Settings
+    function saveSettings() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const theme = document.getElementById("theme").value;
+
+      localStorage.setItem("username", name);
+      localStorage.setItem("email", email);
+      localStorage.setItem("theme", theme);
+
+      applyTheme(theme);
+      alert("✅ Settings saved successfully!");
+
+      // Update profile popup
+      document.getElementById("profileName").textContent = name || "Guest";
+      document.getElementById("profileEmail").textContent = email || "Not set";
+    }
+
+    // Help Popup
+    function showHelp() { document.getElementById("helpPopup").style.display = "block"; }
+    function closeHelp() { document.getElementById("helpPopup").style.display = "none"; }
+
+    // Profile Popup
+    const profileIcon = document.getElementById("profileIcon");
+    const profilePopup = document.getElementById("profilePopup");
+    profileIcon.addEventListener("click", () => {
+      profilePopup.style.display = profilePopup.style.display === "block" ? "none" : "block";
+    });
+    function closeProfile() { profilePopup.style.display = "none"; }
+  </script>
+</body>
+</html>

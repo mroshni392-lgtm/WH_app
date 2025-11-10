@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Project Ideas – WH HeatMap</title>
+<style>
+:root{
+  --bg1:#0f1724; --bg2:#1e293b; --accent1:#60a5fa; --accent2:#7dd3fc; --text:#e6eef6;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",sans-serif}
+html,body{height:100%}
+body{
+  min-height:100vh;
+  background:linear-gradient(120deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px;
+  gap:16px;
+  -webkit-font-smoothing:antialiased;
+  animation:bgShift 8s ease-in-out infinite alternate;
+}
+@keyframes bgShift{0%{background:linear-gradient(120deg,#0f1724,#1e293b)}100%{background:linear-gradient(120deg,#1e293b,#0f1724)}}
+
+/* header */
+.header {
+  width:100%;
+  max-width:1100px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo {
+  background:linear-gradient(90deg,var(--accent2),var(--accent1));
+  height:56px;width:56px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:#04263b;
+  box-shadow:0 6px 26px rgba(96,165,250,0.16);
+}
+.title {
+  font-size:18px;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  font-weight:700;
+}
+
+/* controls */
+.controls {
+  display:flex;align-items:center;gap:10px;
+}
+.btn {
+  border:none;padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#04263b;
+  box-shadow:0 6px 22px rgba(96,165,250,0.12);
+}
+.secondary {
+  background:rgba(255,255,255,0.06); color:var(--text); border:1px solid rgba(255,255,255,0.03);
+  padding:8px 12px;border-radius:10px;
+}
+.search {
+  display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.03);padding:6px;border-radius:10px;
+}
+.search input {
+  background:transparent;border:none;outline:none;color:var(--text);width:220px;padding:6px;
+}
+
+/* layout */
+.container {
+  width:100%;
+  max-width:1100px;
+  display:grid;
+  grid-template-columns: 320px 1fr 420px;
+  gap:18px;
+  align-items:start;
+}
+
+/* left: categories */
+.left {
+  background:rgba(30,41,59,0.6);border-radius:12px;padding:14px;height:calc(100vh - 220px);overflow:auto;
+  box-shadow:0 6px 26px rgba(96,165,250,0.06);
+}
+.left h2 { margin-bottom:10px;color:var(--accent2) }
+.cat-btn {
+  width:100%; text-align:left; padding:10px 12px;margin:8px 0;border-radius:10px;border:none;
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color:var(--text);cursor:pointer;
+}
+.cat-btn.active { box-shadow:0 8px 30px rgba(96,165,250,0.12); transform:translateY(-3px);}
+.counter { font-size:12px;color:#9aa4b2;margin-top:8px; }
+
+/* center: project list */
+.center {
+  background:rgba(30,41,59,0.5);border-radius:12px;padding:14px;height:calc(100vh - 220px);overflow:auto;
+  box-shadow:0 6px 26px rgba(96,165,250,0.06);
+}
+.center h2 { color:var(--accent2); margin-bottom:12px; }
+.project-card {
+  background:rgba(12,17,27,0.55); padding:12px;border-radius:12px;margin-bottom:12px;cursor:pointer;
+  display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border:1px solid rgba(96,165,250,0.03);
+}
+.project-meta { flex:1; }
+.project-card h3 { margin-bottom:6px; font-size:16px }
+.project-card p { color:#a8b6c8; font-size:13px; line-height:1.45; max-height:72px; overflow:hidden; }
+.heart {
+  font-size:20px; cursor:pointer; user-select:none; padding:8px;border-radius:8px;
+  background:transparent;color:#7dd3fc;border:1px solid rgba(125,211,252,0.12);
+}
+.heart.liked { background:rgba(248,113,113,0.12); color:#f87171;border-color:rgba(248,113,113,0.18); }
+
+/* right: details / wishlist */
+.right {
+  background:rgba(30,41,59,0.5);border-radius:12px;padding:14px;height:calc(100vh - 220px);overflow:auto;
+  box-shadow:0 6px 26px rgba(96,165,250,0.06);
+}
+.right h2 { color:var(--accent2); margin-bottom:12px }
+.details h3 { margin-bottom:8px }
+.details p { color:#cbd5e1; line-height:1.7; font-size:14px; white-space:pre-wrap; }
+.wishlist-list .wish-item { background:rgba(12,17,27,0.5);padding:10px;border-radius:10px;margin-bottom:10px;border:1px solid rgba(96,165,250,0.04) }
+.small { font-size:12px;color:#9aa4b2;margin-top:8px }
+
+/* responsive */
+@media (max-width:1100px){
+  .container { grid-template-columns: 1fr; }
+  .right{order:3}
+  .left{order:1}
+  .center{order:2}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">
+    <div class="logo">WH</div>
+    <div>
+      <div class="title">Waste Heat Map — Project Explorer</div>
+      <div class="small">Explore, like, and collect project ideas</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="search">
+      <input id="globalSearch" placeholder="Search projects or type 'individual' / 'team'">
+      <button class="btn" id="searchBtn">Search</button>
+    </div>
+    <button class="btn" id="wishlistBtn">Wishlist (0)</button>
+    <button class="secondary" id="backHomeBtn">Back</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- categories -->
+  <div class="left">
+    <h2>Categories</h2>
+    <div id="categoryList"></div>
+    <div class="counter" id="catInfo">Choose a category to see 20 project ideas</div>
+  </div>
+
+  <!-- project list -->
+  <div class="center">
+    <h2 id="centerTitle">Select a category</h2>
+    <div id="projectList"></div>
+  </div>
+
+  <!-- details / wishlist -->
+  <div class="right" id="rightPane">
+    <h2 id="rightTitle">Project Details</h2>
+    <div id="rightContent" class="details">
+      <p>Select a project to view a full detailed description here.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= DATA =========
+   We'll generate 6 categories * 20 items each.
+   Each item includes:
+     - title
+     - long detail (multi-paragraph ~10 lines)
+     - tag: "individual" | "team" (used by search)
+*/
+const categories = ["Software","Chemical","Physics","Environment","Electrical","Mechanical"];
+
+function longDescription(seedTitle, category, idx) {
+  // Build a long, multi-paragraph description programmatically to avoid massive repeated copy/paste.
+  // This produces ~10 lines worth of text and includes practical steps, deliverables, and team/individual notes.
+  return [
+    `Overview:
+${seedTitle} (${category} — Project #${idx}) is a comprehensive project that explores practical and research elements of the domain. The goal is to produce working prototypes, simulations, and a final report with actionable insights. This project is suitable for hands-on experimentation, data analysis, and applied design.`,
+
+    `Motivation & Objectives:
+Many industries and urban environments waste thermal energy. This project aims to analyze where and how heat is lost, quantify inefficiencies, and propose solutions that can be prototyped or modeled. Objectives include data collection, modeling, design optimization, and cost/benefit analysis.`,
+
+    `Methodology:
+Start with literature review, then sensor or data acquisition planning (IoT/CSV datasets). Build a data ingestion pipeline, exploratory analysis, and modeling components. Use thermodynamic or ML-based methods depending on the category. Validate results experimentally or with simulations, and iterate.`,
+
+    `Technical Components:
+- Data acquisition: sensors or synthetic datasets.
+- Simulation & modeling: use Python/Matlab/Simulink or domain-specific tools.
+- Optimization & control: apply control theory, ML, or process improvements.
+- Visualization & dashboard: provide an interactive UI to explore heat maps and insights.`,
+
+    `Deliverables:
+A full prototype (hardware/software or simulation), codebase with documentation, final report explaining assumptions, analyses, and recommendations, and a slide deck for presentation. Optional: a small cost/feasibility study and sustainability assessment.`,
+
+    `Timeline & Milestones:
+Week 1-2 research & planning, Week 3-5 data & model development, Week 6-8 prototyping & validation, Week 9 finalization and reporting. This may be extended for deeper research or industrial partnerships.`,
+
+    `Team & Skills:
+${(idx % 2 === 0) ? "Individual-friendly: a motivated single developer or student can scope a focused sub-problem and produce meaningful results." : "Team-friendly: recommended team size 2-4 with complementary skills (data, domain knowledge, hardware/electronics)."} 
+Important skills include domain knowledge, programming, experimental design, and communication.`,
+
+    `Impact & Extensions:
+The project has practical impact potential — from campus-scale deployments to industry pilots. Extensions include long-term monitoring, adaptive control systems, and integration with energy management platforms.`,
+
+    `Evaluation:
+Assess using quantitative metrics: energy savings, efficiency improvement, RMSE (for predictive components), or cost-to-benefit ratios. Provide sensitivity analysis for assumptions and constraints.`,
+
+    `Notes:
+Make sure to include ethical and environmental considerations. Keep reproducibility by ensuring sensors/data and code are well-documented and published with licenses where possible.`
+  ].join("\n\n");
+}
+
+/* Build ideas object */
+const ideas = {};
+categories.forEach(cat => {
+  ideas[cat] = [];
+  for(let i=1;i<=20;i++){
+    const title = `${cat} Project — ${(i).toString().padStart(2,'0')} : ${(cat==="Software") ? "AI/ML" : (cat==="Chemical") ? "Thermo-Chemical" : (cat==="Physics") ? "Thermal Physics" : (cat==="Environment") ? "Urban Heat" : (cat==="Electrical") ? "Grid & Cooling" : "Heat Recovery"} Focus`;
+    const tag = (i % 2 === 0) ? "individual" : "team"; // alternating so search returns something
+    ideas[cat].push({
+      id: `${cat}-${i}`,
+      title: `${title} ${i}`,
+      detail: longDescription(title, cat, i),
+      tag
+    });
+  }
+});
+
+/* ========== Storage for wishlist (persisted) ========== */
+let wishlist = JSON.parse(localStorage.getItem("wh_wishlist_v1") || "[]");
+
+/* ========== UI wiring ========== */
+const categoryList = document.getElementById("categoryList");
+const projectList = document.getElementById("projectList");
+const rightContent = document.getElementById("rightContent");
+const rightTitle = document.getElementById("rightTitle");
+const centerTitle = document.getElementById("centerTitle");
+const wishlistBtn = document.getElementById("wishlistBtn");
+const globalSearch = document.getElementById("globalSearch");
+const searchBtn = document.getElementById("searchBtn");
+const backHomeBtn = document.getElementById("backHomeBtn");
+
+/* show categories */
+function renderCategories(){
+  categoryList.innerHTML = "";
+  categories.forEach(cat=>{
+    const b = document.createElement("button");
+    b.className = "cat-btn";
+    b.textContent = `${cat} (${ideas[cat].length})`;
+    b.onclick = ()=> {
+      document.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      showProjects(cat);
+    };
+    categoryList.appendChild(b);
+  });
+}
+
+/* show projects for a category */
+function showProjects(category){
+  centerTitle.textContent = `${category} Projects`;
+  projectList.innerHTML = "";
+  const arr = ideas[category];
+  arr.forEach(proj=>{
+    const card = document.createElement("div");
+    card.className = "project-card";
+    card.innerHTML = `
+      <div class="project-meta">
+        <h3>${proj.title}</h3>
+        <p>${proj.detail.slice(0,350)}${proj.detail.length>350?'...':''}</p>
+        <div class="small">Tag: ${proj.tag}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <div class="heart ${wishlist.includes(proj.id)?'liked':''}" data-id="${proj.id}">${wishlist.includes(proj.id)?'♥':'♡'}</div>
+        <div style="font-size:12px;color:#9aa4b2">${proj.id.split("-").slice(-1)[0]}</div>
+      </div>
+    `;
+    // clicking card opens details (unless heart clicked)
+    card.addEventListener("click", (e)=>{
+      if(e.target.classList && e.target.classList.contains('heart')) return;
+      openDetail(proj);
+    });
+    // heart click
+    const heartEl = card.querySelector(".heart");
+    heartEl.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      toggleWishlist(proj, heartEl);
+    });
+    projectList.appendChild(card);
+  });
+}
+
+/* open details in right pane */
+function openDetail(proj){
+  rightTitle.textContent = proj.title;
+  rightContent.innerHTML = `
+    <h3>${proj.title}</h3>
+    <p>${proj.detail}</p>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn" id="likeDetailBtn">${wishlist.includes(proj.id)?'Remove from Wishlist':'Add to Wishlist'}</button>
+      <button class="secondary" id="backToList">Back to list</button>
+    </div>
+    <div class="small">Tag: ${proj.tag} — ID: ${proj.id}</div>
+  `;
+  document.getElementById("backToList").onclick = ()=> {
+    // if category still active, redisplay it; else clear
+    const active = document.querySelector(".cat-btn.active");
+    if(active) active.click();
+    else projectList.innerHTML = "";
+    rightTitle.textContent = "Project Details";
+    rightContent.innerHTML = `<p>Select a project to view a full detailed description here.</p>`;
+  };
+  document.getElementById("likeDetailBtn").onclick = (e)=>{
+    toggleWishlist(proj, null, true);
+    e.target.textContent = wishlist.includes(proj.id) ? 'Remove from Wishlist' : 'Add to Wishlist';
+  };
+}
+
+/* toggle wishlist */
+function toggleWishlist(proj, heartEl=null, fromDetail=false){
+  const id = proj.id;
+  const index = wishlist.indexOf(id);
+  if(index >= 0){
+    wishlist.splice(index,1);
+    showToast("Removed from wishlist");
+  } else {
+    wishlist.push(id);
+    showToast("Added to wishlist");
+  }
+  localStorage.setItem("wh_wishlist_v1", JSON.stringify(wishlist));
+  refreshHearts();
+  updateWishlistButton();
+  if(heartEl){
+    heartEl.classList.toggle("liked");
+    heartEl.textContent = wishlist.includes(id)?'♥':'♡';
+  }
+}
+
+/* refresh all heart icons */
+function refreshHearts(){
+  document.querySelectorAll(".heart").forEach(h=>{
+    const id = h.getAttribute("data-id");
+    if(!id) return;
+    if(wishlist.includes(id)){ h.classList.add("liked"); h.textContent='♥'; } else { h.classList.remove("liked"); h.textContent='♡'; }
+  });
+}
+
+/* wishlist pane */
+function showWishlistView(filterQuery=""){
+  centerTitle.textContent = "Your Wishlist";
+  projectList.innerHTML = "";
+  rightTitle.textContent = "Wishlist";
+  rightContent.innerHTML = "";
+  if(!wishlist.length){
+    projectList.innerHTML = "<p style='color:#9aa4b2'>Your wishlist is empty. Click the heart on any project to add it.</p>";
+    return;
+  }
+  // gather project objects by id
+  const items = [];
+  categories.forEach(cat=>{
+    ideas[cat].forEach(p=>{
+      if(wishlist.includes(p.id)) items.push(p);
+    });
+  });
+  // optional filter for individual/team search
+  let filtered = items;
+  const q = filterQuery.trim().toLowerCase();
+  if(q){
+    if(q.includes("individual")) filtered = items.filter(i => i.tag === "individual");
+    else if(q.includes("team")) filtered = items.filter(i => i.tag === "team");
+    else filtered = items.filter(i => i.title.toLowerCase().includes(q) || i.detail.toLowerCase().includes(q));
+  }
+  if(!filtered.length){
+    projectList.innerHTML = "<p style='color:#9aa4b2'>No wishlist items match your search.</p>";
+    return;
+  }
+  filtered.forEach(proj=>{
+    const div = document.createElement("div");
+    div.className = "project-card";
+    div.innerHTML = `
+      <div class="project-meta">
+        <h3>${proj.title}</h3>
+        <p>${proj.detail.slice(0,500)}${proj.detail.length>500?'...':''}</p>
+        <div class="small">Tag: ${proj.tag}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <div class="heart liked" data-id="${proj.id}">♥</div>
+      </div>
+    `;
+    // open detail
+    div.addEventListener("click",(e)=>{
+      if(e.target.classList && e.target.classList.contains('heart')) return;
+      openDetail(proj);
+    });
+    // remove from wishlist click
+    div.querySelector(".heart").addEventListener("click",(ev)=>{
+      ev.stopPropagation();
+      toggleWishlist(proj, div.querySelector(".heart"));
+      div.remove();
+      // if last removed, show empty message
+      if(document.querySelectorAll(".wish-item, .project-card").length === 0) projectList.innerHTML = "<p style='color:#9aa4b2'>Your wishlist is empty.</p>";
+    });
+    projectList.appendChild(div);
+  });
+}
+
+/* global search */
+function performSearch(q){
+  q = q.trim().toLowerCase();
+  if(!q) { // no query — show prompt
+    projectList.innerHTML = "<p style='color:#9aa4b2'>Type 'individual' or 'team' to find related projects, or search for keywords.</p>";
+    return;
+  }
+  // special keywords: individual / team — return matching projects across all categories
+  let results = [];
+  if(q.includes("individual") || q.includes("team")){
+    const tag = q.includes("individual") ? "individual" : "team";
+    categories.forEach(cat => {
+      results = results.concat( ideas[cat].filter(p => p.tag === tag) );
+    });
+  } else {
+    categories.forEach(cat=>{
+      results = results.concat( ideas[cat].filter(p => p.title.toLowerCase().includes(q) || p.detail.toLowerCase().includes(q)) );
+    });
+  }
+  centerTitle.textContent = `Search results (${results.length})`;
+  projectList.innerHTML = "";
+  if(results.length===0){
+    projectList.innerHTML = "<p style='color:#9aa4b2'>No results found.</p>";
+    return;
+  }
+  results.forEach(proj=>{
+    const card = document.createElement("div");
+    card.className = "project-card";
+    card.innerHTML = `
+      <div class="project-meta">
+        <h3>${proj.title}</h3>
+        <p>${proj.detail.slice(0,350)}${proj.detail.length>350?'...':''}</p>
+        <div class="small">Tag: ${proj.tag} — Category: ${proj.id.split('-')[0]}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+        <div class="heart ${wishlist.includes(proj.id)?'liked':''}" data-id="${proj.id}">${wishlist.includes(proj.id)?'♥':'♡'}</div>
+      </div>
+    `;
+    card.addEventListener("click",(e)=>{
+      if(e.target.classList && e.target.classList.contains('heart')) return;
+      openDetail(proj);
+    });
+    card.querySelector(".heart").addEventListener("click",(ev)=>{
+      ev.stopPropagation();
+      toggleWishlist(proj, card.querySelector(".heart"));
+    });
+    projectList.appendChild(card);
+  });
+}
+
+/* small toast message */
+function showToast(msg){
+  // minimal toast using alert replacement styled temporarily
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.position = "fixed";
+  t.style.right = "20px";
+  t.style.bottom = "20px";
+  t.style.background = "rgba(2,6,23,0.9)";
+  t.style.color = "#e6eef6";
+  t.style.padding = "10px 14px";
+  t.style.borderRadius = "10px";
+  t.style.boxShadow = "0 8px 24px rgba(2,6,23,0.6)";
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.transition="opacity 0.4s"; t.style.opacity="0"; setTimeout(()=>t.remove(),400) }, 1400);
+}
+
+/* update wishlist button count */
+function updateWishlistButton(){
+  wishlistBtn.textContent = `Wishlist (${wishlist.length})`;
+}
+
+/* back to index.html */
+backHomeBtn.onclick = ()=> window.location.href = "index.html";
+
+/* wire search input */
+searchBtn.onclick = ()=> performSearch(globalSearch.value);
+globalSearch.addEventListener("keydown", (e)=> { if(e.key === "Enter") performSearch(globalSearch.value); });
+
+/* wishlist view */
+wishlistBtn.onclick = ()=> showWishlistView(globalSearch.value);
+
+/* initial render */
+renderCategories();
+updateWishlistButton();
+
+/* show default first category on load */
+document.querySelectorAll(".cat-btn")[0].click();
+
+/* refresh hearts on load */
+refreshHearts();
+
+</script>
+</body>
+</html>
